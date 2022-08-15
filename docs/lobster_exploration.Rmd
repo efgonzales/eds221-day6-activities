@@ -1,0 +1,69 @@
+---
+title: "Lobster exploration"
+author: "Elise Gonzales"
+date: "2022-08-15"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+library(here)
+library(janitor)
+```
+
+```{r}
+#read in data
+lobsters <- read_csv(here("data","Lobster_Abundance_All_Years_20210412.csv"), na = c("-99999", "")) |> 
+  clean_names() |> 
+  uncount(count) #convert the data from frequency to case format. Each observation in its own row.
+
+#mutate(x = ifelse(logical test, if true, if false) assign this value to x.
+```
+
+##Task 2
+```{r}
+lobsters_summary <- lobsters |> 
+  group_by(site, year) |> 
+  summarize(total_counts = n(), 
+            mean_size_mm = mean(size_mm, na.rm = TRUE))
+
+ggplot(lobsters_summary, aes(x = year, y = total_counts)) + geom_line(aes(color = site))
+```
+
+```{r}
+lobsters_subset <- lobsters |> 
+  filter(year == 2020) |> 
+  mutate(legal = ifelse(size_mm > 79.76, yes = "yes", no = "no")) |> 
+  group_by(legal, site) |> 
+  summarize(counts = n()) 
+
+ggplot(data = lobsters_subset, aes(x = site, y = counts)) + geom_col(position = "fill", aes(fill = legal)) + ggtitle("Proportion of legal and non-legal lobsters at each site")
+```
+
+##Task 3
+```{r}
+ex_a <- lobsters |> 
+  filter(site %in% c("IVEE", "CARP", "NAPL"))
+ex_b <- lobsters |> 
+  filter(month == 8)
+ex_c <- lobsters |> 
+  filter(site == "AQUE" | size_mm > 70)
+ex_d <- lobsters |> 
+  filter(site != "NAPL")
+
+ex_e <- lobsters |> 
+  group_by(site) |> 
+  summarize(mean_size_mm = mean(size_mm),
+            sd_size_mm = sd(size_mm))
+ex_f <- lobsters |> 
+  group_by(site, month) |> 
+  summarize(max_size_mm = max(size_mm))
+
+ex_g <- lobsters |> 
+  mutate(size_cm = size_mm / 10) |> 
+  relocate(size_cm, .after = size_mm)
+ex_h <- 
+ 
+```
+
